@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import random
+from cmath import inf
 
 from fishing_game_core.game_tree import Node
 from fishing_game_core.player_utils import PlayerController
@@ -22,6 +23,35 @@ class PlayerControllerHuman(PlayerController):
             msg = self.receiver()
             if msg["game_over"]:
                 return
+
+def heuristic_function (node, player):
+    return node.state.player_scores[0] - node.state.player_scores[1]
+
+def minimax (node, player, alpha, beta):
+    child_list = node.compute_and_get_children()
+    if len(child_list) == 1:
+        return minimax(child_list[0], 1-player, alpha, beta)
+    elif len(child_list) == 0 or node.depth >= 10:
+        return heuristic_function(node, 0)
+    else:
+        if player == 0:
+            best_possible_max = -inf
+            for child in child_list:
+                v = minimax(child, 1, alpha, beta)
+                best_possible_max = max(best_possible_max, v)
+                alpha = max(alpha, v)
+                if beta <= alpha:
+                    break
+            return best_possible_max
+        else:
+            best_possible_min = inf
+            for child in child_list:
+                v = minimax(child, 0, alpha, beta)
+                best_possible_min = min(best_possible_min, v)
+                beta = min(beta, v)
+                if beta <= alpha:
+                    break
+            return best_possible_min
 
 
 class PlayerControllerMinimax(PlayerController):
@@ -64,6 +94,20 @@ class PlayerControllerMinimax(PlayerController):
 
         # NOTE: Don't forget to initialize the children of the current node
         #       with its compute_and_get_children() method!
-
-        random_move = random.randrange(5)
-        return ACTION_TO_STR[random_move]
+        child_list = initial_tree_node.compute_and_get_children()
+        if len(child_list) == 1:
+            return ACTION_TO_STR[child_list[0].move]
+        else:
+            minimax_list = [None] * 5
+            for child in child_list:
+                #minimax_list.append(minimax(child, 0))
+                minimax_list[child.move] = minimax(child,0, -inf, inf)
+            i = 0
+            max_value = -inf
+            for j in range(len(minimax_list)):
+                if minimax_list[j] > max_value:
+                    i = j
+                    max_value = minimax_list[j]
+            return ACTION_TO_STR[i]
+        #random_move = random.randrange(5)
+        #return ACTION_TO_STR[random_move]
