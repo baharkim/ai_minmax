@@ -25,13 +25,28 @@ class PlayerControllerHuman(PlayerController):
                 return
 
 def heuristic_function (node, player):
-    return node.state.player_scores[0] - node.state.player_scores[1]
+    fish_dist = []
+    (hx, hy) = node.state.hook_positions[0]
+    for fish in node.state.fish_positions:
+        (fx, fy) = node.state.fish_positions[fish]
+        x_dist = abs(hx - fx)
+        if x_dist > 10:
+            x_dist = 20 - x_dist
+        y_dist = abs(hy - fy)
+        if y_dist > 10:
+            y_dist = 20 - y_dist
+        fish_dist.append(x_dist + y_dist)
+        print(fish_dist)
+    if len(fish_dist) > 0:
+        return 100 - min(fish_dist)
+    else:
+        return node.state.player_scores[0] - node.state.player_scores[1]
 
 def minimax (node, player, alpha, beta):
     child_list = node.compute_and_get_children()
     if len(child_list) == 1:
         return minimax(child_list[0], 1-player, alpha, beta)
-    elif len(child_list) == 0 or node.depth >= 10:
+    elif len(child_list) == 0 or node.depth >= 1:
         return heuristic_function(node, 0)
     else:
         if player == 0:
