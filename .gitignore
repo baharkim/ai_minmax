@@ -1,2 +1,4 @@
 *.iml
 .idea
+/.conda
+/__pycache__
