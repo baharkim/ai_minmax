@@ -33,10 +33,8 @@ def heuristic_function (node, player):
         if x_dist > 10:
             x_dist = 20 - x_dist
         y_dist = abs(hy - fy)
-        if y_dist > 10:
-            y_dist = 20 - y_dist
         fish_dist.append(x_dist + y_dist)
-        print(fish_dist)
+        #print(fish_dist)
     if len(fish_dist) > 0:
         return 100 - min(fish_dist)
     else:
@@ -45,8 +43,8 @@ def heuristic_function (node, player):
 def minimax (node, player, alpha, beta):
     child_list = node.compute_and_get_children()
     if len(child_list) == 1:
-        return minimax(child_list[0], 1-player, alpha, beta)
-    elif len(child_list) == 0 or node.depth >= 1:
+        return 100 #minimax(child_list[0], 1-player, alpha, beta)
+    elif len(child_list) == 0 or node.depth >= 4:
         return heuristic_function(node, 0)
     else:
         if player == 0:
@@ -120,9 +118,10 @@ class PlayerControllerMinimax(PlayerController):
             i = 0
             max_value = -inf
             for j in range(len(minimax_list)):
-                if minimax_list[j] > max_value:
+                if minimax_list[j] >= max_value:
                     i = j
                     max_value = minimax_list[j]
+            #print(ACTION_TO_STR[i])
             return ACTION_TO_STR[i]
         #random_move = random.randrange(5)
         #return ACTION_TO_STR[random_move]
